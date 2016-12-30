@@ -45,8 +45,9 @@ public class PlayerMachine : SuperStateMachine {
 
     protected override void EarlyGlobalSuperUpdate()
     {
-		// Rotate out facing direction horizontally based on mouse input
-        lookDirection = Quaternion.AngleAxis(input.Current.MouseInput.x, controller.up) * lookDirection;
+        //TYPE1NINJA: Normally, lookDirection is set based on mouse input, but here we want to set it based on transform.forward
+        //Since we're already handling mouse movement with SimpleSmoothMouseMovement
+        lookDirection = transform.forward;
         // Put any code in here you want to run BEFORE the state's update function.
         // This is run regardless of what state you're in
     }
@@ -58,9 +59,6 @@ public class PlayerMachine : SuperStateMachine {
 
         // Move the player by our velocity every frame
         transform.position += moveDirection * controller.deltaTime;
-
-        // Rotate our mesh to face where we are "looking"
-        AnimatedMesh.rotation = Quaternion.LookRotation(lookDirection, controller.up);
     }
 
     private bool AcquiringGround()
