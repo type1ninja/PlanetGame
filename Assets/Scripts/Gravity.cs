@@ -7,9 +7,10 @@ public class Gravity : MonoBehaviour {
     static Transform[] gravityTransforms;
     static GravityMass[] gravityMasses;
     //ROTATION_SPEED determines how quickly characters reorient themselves toward gravity sources
-    static float ROTATION_SPEED = 1.0f;
+    static float ROTATION_SPEED = 50.0f;
 
-    //TODO - assign thing to apply force to
+    //The rigidbody for applying forces
+    private Rigidbody rigbod;
 
     //Variables for use in FixedUpdate()
     private Vector3 force;
@@ -29,8 +30,8 @@ public class Gravity : MonoBehaviour {
                 gravityMasses[i] = gravityTransforms[i].GetComponent<GravityMass>();
             }
         }
-        //Get charMove for the character this script is on
-        //TODO - find thing to apply force to
+        //Get the rigidbody for this character
+        rigbod = GetComponent<Rigidbody>();
     }
 
     //Physics calculations
@@ -49,11 +50,13 @@ public class Gravity : MonoBehaviour {
             {
                 strongestForce = force;
             }
-            //TODO - apply the force
+            rigbod.AddForce(force, ForceMode.Impulse);
         }
         //Orient in the correct direction
         //Rotate the "up" direction of the player slowly away from the direction of the strongestForce
-        transform.up = Vector3.Lerp(transform.up, -1 * strongestForce.normalized, Time.fixedDeltaTime * ROTATION_SPEED);
+        transform.up = Vector3.Lerp(transform.up, -strongestForce.normalized, Time.fixedDeltaTime * ROTATION_SPEED);
+        //Instant rotation version:
+        //transform.up = -strongestForce.normalized;
     }
 
     private Vector3 GetGravityForce(Transform attractTransform, GravityMass attractMass)
@@ -65,7 +68,7 @@ public class Gravity : MonoBehaviour {
         //Force is the direction * the strength of the pull
         //Because we're ignoring the Gravitational Constant and mass of the player, 
         //pull strength = mass / distance squared
-        Vector3 force = dir * (float)(attractMass.mass / Math.Pow(Vector3.Distance(transform.position, attractTransform.position), 2));
+        Vector3 force = dir * (float)((rigbod.mass * attractMass.mass) / Math.Pow(Vector3.Distance(transform.position, attractTransform.position), 2));
         return force;
     }
 }
