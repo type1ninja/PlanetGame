@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public class CharacterGravity : MonoBehaviour {
+public class Gravity : MonoBehaviour {
     
     //List of gravity objects and mass components, found as children on the object "GravityObjects"
     static Transform[] gravityTransforms;
@@ -9,7 +9,7 @@ public class CharacterGravity : MonoBehaviour {
     //ROTATION_SPEED determines how quickly characters reorient themselves toward gravity sources
     static float ROTATION_SPEED = 1.0f;
 
-    //CharacterMove charMove; TODO - REPLACE THIS WITH RELEVANT SUPERCHARACTERCONTROLLER
+    //TODO - assign thing to apply force to
 
     //Variables for use in FixedUpdate()
     private Vector3 force;
@@ -30,7 +30,7 @@ public class CharacterGravity : MonoBehaviour {
             }
         }
         //Get charMove for the character this script is on
-        //charMove = GetComponent<CharacterMove>(); TODO - SCC REPLACEMENT
+        //TODO - find thing to apply force to
     }
 
     //Physics calculations
@@ -49,9 +49,8 @@ public class CharacterGravity : MonoBehaviour {
             {
                 strongestForce = force;
             }
-            //TODO - Apply the force
+            //TODO - apply the force
         }
-
         //Orient in the correct direction
         //Rotate the "up" direction of the player slowly away from the direction of the strongestForce
         transform.up = Vector3.Lerp(transform.up, -1 * strongestForce.normalized, Time.fixedDeltaTime * ROTATION_SPEED);
