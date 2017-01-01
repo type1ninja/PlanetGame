@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Gravity : MonoBehaviour {
     
@@ -65,10 +64,15 @@ public class Gravity : MonoBehaviour {
         // Make sure the length is one, so we can scale it up easily with the force
         Vector3 dir = (attractTransform.position - transform.position).normalized;
 
+        //Set distSqrd to the distance
+        float distSqrd = Vector3.Distance(transform.position, attractTransform.position);
+        //Now we actually square distSqrd
+        distSqrd *= distSqrd;
+        
         //Force is the direction * the strength of the pull
-        //Because we're ignoring the Gravitational Constant and mass of the player, 
+        //Because we're ignoring the Gravitational Constant, 
         //pull strength = mass / distance squared
-        Vector3 force = dir * (float)((rigbod.mass * attractMass.mass) / Math.Pow(Vector3.Distance(transform.position, attractTransform.position), 2));
+        Vector3 force = dir * (float)((rigbod.mass * attractMass.mass) / distSqrd);
         return force;
     }
 }

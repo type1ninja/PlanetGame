@@ -5,7 +5,7 @@ using System.Collections;
 [RequireComponent(typeof(CapsuleCollider))]
 
 //Taken from here: http://answers.unity3d.com/questions/8676/make-rigidbody-walk-like-character-controller.html
-//I have probably made some modifications
+//I made some modifications for this game
 public class RigidbodyFPS : MonoBehaviour
 {
     #region Variables (private)
@@ -33,7 +33,7 @@ public class RigidbodyFPS : MonoBehaviour
 
     // Air
     public float inAirControl = 0.0f;
-    public Vector3 jumpForce = new Vector3(0, 10.0f, 0);
+    public Vector3 jumpForce = new Vector3(0, 20.0f, 0);
 
     // Can Flags
     public bool canRunSidestep = true;
@@ -87,15 +87,14 @@ public class RigidbodyFPS : MonoBehaviour
         {
             // Apply a force that attempts to reach our target velocity
             var velocityChange = CalculateVelocityChange(inputVector);
-            velocityChange = transform.TransformDirection(velocityChange);
-            //Debug.DrawLine(transform.position, transform.position + velocityChange, Color.red, 10);
+            //Debug.DrawLine(transform.position, transform.position + velocityChange, Color.red, .75f);
             rigbod.AddForce(velocityChange, ForceMode.VelocityChange);
 
             // Jump
             if (canJump && jumpFlag)
             {
                 jumpFlag = false;
-                //Debug.DrawLine(transform.position, transform.position + transform.TransformDirection(jumpForce), Color.red, 10);
+                Debug.DrawLine(transform.position, transform.position + transform.TransformDirection(jumpForce), Color.red, .75f);
                 rigbod.AddForce(transform.TransformDirection(jumpForce), ForceMode.Impulse);
             }
 
@@ -138,7 +137,7 @@ public class RigidbodyFPS : MonoBehaviour
     private Vector3 CalculateVelocityChange(Vector3 inputVector)
     {
         // Calculate how fast we should be moving
-        var relativeVelocity = transform.TransformDirection(inputVector);
+        var relativeVelocity = inputVector;
         if (inputVector.z > 0)
         {
             relativeVelocity.z *= (canRun && Input.GetButton("Sprint")) ? runSpeed : walkSpeed;
@@ -151,10 +150,10 @@ public class RigidbodyFPS : MonoBehaviour
 
         // Calcualte the delta velocity
         var currRelativeVelocity = rigbod.velocity - groundVelocity;
-        var velocityChange = relativeVelocity - currRelativeVelocity;
+        var velocityChange = transform.TransformDirection(relativeVelocity) - currRelativeVelocity;
         velocityChange.x = Mathf.Clamp(velocityChange.x, -maxVelocityChange, maxVelocityChange);
         velocityChange.z = Mathf.Clamp(velocityChange.z, -maxVelocityChange, maxVelocityChange);
-        velocityChange.y = 0;
+        velocityChange.y = Mathf.Clamp(velocityChange.y, -maxVelocityChange, maxVelocityChange);
 
         return velocityChange;
     }
@@ -162,11 +161,15 @@ public class RigidbodyFPS : MonoBehaviour
     // Check if the base of the capsule is colliding to track if it's grounded
     private void TrackGrounded(Collision collision)
     {
-        var maxHeight = capsule.bounds.min.y + capsule.radius * .9f;
+        //var maxHeight = capsule.bounds.min.y + capsule.radius * .9f;
+        //Originally used below
         foreach (var contact in collision.contacts)
         {
 
-            if (contact.point.y < maxHeight)
+            //Originally, contact.point.y < maxHeight was the check
+            //But I couldn't use that since that's checking world space, and I need to know whether or not it's below us in local space
+            //So I'll just make sure that the point is close to transform.position, which is set at the bottom of the character anyway
+            if ((transform.position - contact.point).sqrMagnitude < (capsule.radius * capsule.radius))
             {
                 if (isKinematic(collision))
                 {
